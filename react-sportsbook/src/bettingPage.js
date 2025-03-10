@@ -69,19 +69,46 @@ export default function Betting() {
     let tdOdds = person === "Matthew" ? tdOddsMultipliersMatt : tdOddsMultipliersBrandon;
 
     const [selectedOdds, setSelectedOdds] = useState([]);
-    const [wager, setWager] = useState("");
+    //const [wager, setWager] = useState("");
+
+    const [parlay, setParlay] = useState([]); 
 
     // Add odds to selected list when a bet is placed
-    const handleBet = (odds) => {
-        console.log(payout)
+    const handleBet = (odds, stat) => {
+        stat = stat + " (" + person + ")";
+        setParlay([...parlay, stat])
+        console.log(odds)
+        if (odds < 0){
+            odds = 1/(-1*(odds/100))+1
+        } else {
+            odds = (odds/100)+1
+        }
         setSelectedOdds([...selectedOdds, parseFloat(odds)]);
     };
 
-    // Calculate total odds (product of all selected odds)
-    const totalOdds = selectedOdds.reduce((acc, odd) => acc * odd, 1).toFixed(2);
+    const handleReset = () => {
+        setParlay([])
+        setSelectedOdds([])
+    }
 
-    // Calculate payout (wager * total odds)
-    const payout = wager ? (parseFloat(wager) * totalOdds).toFixed(2) : "0.00";
+    // Calculate total odds (product of all selected odds)
+    const totalOdds = selectedOdds.reduce((acc, odd) => acc * odd, 1);
+
+    const handlePayout = (wager) => {
+        console.log(wager)
+        // Calculate payout (wager * total odds)
+        console.log(totalOdds)
+        const payout = wager ? (parseFloat(wager) * totalOdds).toFixed(2) : "0.00";
+        console.log(payout);
+        console.log(parlay);
+        window.alert("Your Wager: "+wager+"\nPayout: "+payout)
+    ;}
+
+    const handleRemoveItem = (bet, odd) => {
+        console.log(bet)
+        setParlay(l => l.filter(parlay => parlay !== bet))
+        setSelectedOdds(l => l.filter(selectedOdds => selectedOdds !== odd))
+    };
 
     return (
         <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -104,7 +131,7 @@ export default function Betting() {
                                     variant="contained" 
                                     color="primary" 
                                     sx={{ mt: 1 }} 
-                                    //onClick={() => handleBet(oddsMultipliers[index])}
+                                    onClick={() => handleBet(overs[index], statName[index] + " Over")}
                                 >
                                     Over: {overs[index]}
                                 </Button>
@@ -112,7 +139,7 @@ export default function Betting() {
                                     variant="contained" 
                                     color="secondary" 
                                     sx={{ mt: 1, ml: 1 }} 
-                                    //onClick={() => handleBet(oddsMultipliers[index])}
+                                    onClick={() => handleBet(unders[index], statName[index] + " Under")}
                                 >
                                     Under: {unders[index]}
                                 </Button>
@@ -132,7 +159,40 @@ export default function Betting() {
                         <Card sx={{ textAlign: "center", p: 2 }}>
                             <CardContent>
                                 <Typography variant="h6">{player}</Typography>
-                                <Button variant="contained" color="success" sx={{ mt: 1 }}>{tdOdds[index]}</Button>
+                                <Button variant="contained" color="success" sx={{ mt: 1 }} onClick={() => handleBet(tdOdds[index], "Touchdown "+player)}>{tdOdds[index]}</Button>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                ))}
+            </Grid>
+            <TextField id="outlined-basic" label="Wager ($)" sx={{ mt: 4 }} variant="outlined" />
+            <Button
+                variant="contained"
+                color="info" 
+                sx={{ mt: 5, ml:2}} 
+                onClick={() => handlePayout(document.getElementById("outlined-basic").value)}
+            >
+                Place Wager
+            </Button>
+            <Button
+                variant="contained"
+                color="error" 
+                sx={{ mt: 5, ml:2}} 
+                onClick={() => handleReset()}
+            >
+                Reset
+            </Button>
+
+            <Typography variant="h5" gutterBottom sx={{ mt: 4 }}>
+                Parlay Sheet
+            </Typography>
+            <Grid container spacing={2}>
+                {parlay.map((bet, index) => (
+                    <Grid item xs={6} sm={3} key={index}>
+                        <Card sx={{ textAlign: "center", p: 2 }}>
+                            <CardContent>
+                                <Typography variant="h6">{bet}</Typography>
+                                <Button variant="contained" color="success" sx={{ mt: 1 }} onClick={() => handleRemoveItem(parlay[index], selectedOdds[index])}>Remove</Button>
                             </CardContent>
                         </Card>
                     </Grid>
