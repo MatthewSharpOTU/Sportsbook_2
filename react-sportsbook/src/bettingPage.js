@@ -188,11 +188,11 @@ export default function Betting() {
             </Typography>
             <Grid container spacing={2}>
                 {parlay.map((bet, index) => (
-                    <Grid item xs={6} sm={3} key={index}>
+                    <Grid item xs={6} key={index}>
                         <Card sx={{ textAlign: "center", p: 2 }}>
                             <CardContent>
                                 <Typography variant="h6">{bet}</Typography>
-                                <Button variant="contained" color="success" sx={{ mt: 1 }} onClick={() => handleRemoveItem(parlay[index], selectedOdds[index])}>Remove</Button>
+                                <Button variant="contained" color="error" sx={{ mt: 1 }} onClick={() => handleRemoveItem(parlay[index], selectedOdds[index])}>Remove</Button>
                             </CardContent>
                         </Card>
                     </Grid>
